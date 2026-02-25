@@ -37,7 +37,11 @@ SubsiGuard is an AI-powered dashboard designed to detect leakage and fraud patte
 - npm
 
 ### 2. Automatic Setup
-Use the included initializer script to set up both backend and frontend environments:
+First, set up your local environment variables in the frontend:
+```bash
+cp frontend/.env.example frontend/.env.local
+```
+Then, use the included initializer script to set up both backend and frontend environments:
 ```bash
 ./init_project.sh
 ```
