@@ -25,6 +25,11 @@ origins = [
     "http://127.0.0.1:3000",
 ]
 
+# Add production URL if available
+PRODUCTION_URL = os.environ.get("PRODUCTION_URL")
+if PRODUCTION_URL:
+    origins.append(PRODUCTION_URL)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

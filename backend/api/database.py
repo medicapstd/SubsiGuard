@@ -7,12 +7,15 @@ from models.schemas import UploadedFile, AnalysisResultDB  # Import models to re
 
 # Database URL
 import os
-IS_VERCEL = os.environ.get("VERCEL") == "1"
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
-if IS_VERCEL:
-    DATABASE_URL = "sqlite+aiosqlite:///:memory:"
-else:
+if not DATABASE_URL:
+    # Local fallback
     DATABASE_URL = "sqlite+aiosqlite:///./subsiguard.db"
+elif DATABASE_URL.startswith("postgres://"):
+    # Fix for SQLAlchemy/asyncpg which requires postgresql://
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+# If it's already a correct sqlite+aiosqlite or postgresql+asyncpg URL, it will be used as is
 
 # Create Async Engine
 # check_same_thread=False is needed for SQLite
