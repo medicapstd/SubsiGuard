@@ -51,4 +51,18 @@ class DataStorageService:
         results = await session.exec(statement)
         return [db_result.result for db_result in results.all()]
 
+    async def get_history(self, session: AsyncSession) -> List[Dict[str, Any]]:
+        statement = select(UploadedFile, AnalysisResultDB).join(AnalysisResultDB, UploadedFile.id == AnalysisResultDB.file_id)
+        results = await session.exec(statement)
+        
+        history = []
+        for upload_file, analysis_result in results.all():
+            history.append({
+                "file_id": upload_file.id,
+                "filename": upload_file.filename,
+                "upload_date": upload_file.upload_date.isoformat(),
+                "summary": analysis_result.result.get("summary", {})
+            })
+        return sorted(history, key=lambda x: x["upload_date"], reverse=True)
+
 data_storage = DataStorageService()

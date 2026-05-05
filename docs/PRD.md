@@ -60,6 +60,8 @@ Sometimes fraudsters use clever, hidden tricks that break no obvious rules. For 
 - The AI acts like a detective linking clues together. It might notice that a teenager living in an expensive city is claiming a subsidy meant for old farmers in rural villages.
 - The AI looks at thousands of these little, invisible connections. When it finds someone who acts completely different from the normal, honest crowd, it labels them as a "statistic anomaly" (which means totally weird and suspicious).
 
+![AI Fraud Detection Network](assets/ai_network.png)
+
 ### 4.3 Step 3: Giving Out A Risk Score
 After Method A and Method B finish checking the list, the system gives every single person a final grade from 0 to 100.
 - **Low Risk / Safe (Score 0 to 49):** These people look totally honest. The system tells the government to go ahead and pay them quickly.
@@ -72,6 +74,8 @@ When you log into the website, it looks beautiful and very professional.
 - **Heat Map of India:** A big, interactive map of India. Cities that have a lot of scammers will light up in bright red colors.
 - **Bento Grid Layout:** The screen is divided into neat, organized squares (like a Japanese Bento Box). Each square has a different colored chart showing different information, so your eyes don't get tired.
 - **Graphs:** Simple bar charts and line graphs show which programs (like PM-KISAN vs LPG gas) are getting cheated the most.
+
+![SubsiGuard Dashboard UI](assets/dashboard.png)
 
 ### 4.5 Seeing Specific Reports
 - **Deep Dive View:** If a leader sees that the city of Jaipur is red on the map, they can click on it. A list pops up showing every single suspicious person in Jaipur, along with the exact reason why the AI flagged them.

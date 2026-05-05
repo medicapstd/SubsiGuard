@@ -40,6 +40,13 @@ export interface AnalysisResult {
     report_details?: AnalysisReportDetails;
 }
 
+export interface HistoryItem {
+    file_id: string;
+    filename: string;
+    upload_date: string;
+    summary: AnalysisSummary;
+}
+
 export interface SyntheticDataResponse {
     count: number;
     data: Record<string, unknown>[];
@@ -265,6 +272,47 @@ export const api = {
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({ detail: "Unknown fetch error" }));
             throw new Error(errorData.detail || `Fetching summary failed: ${response.statusText}`);
+        }
+
+        return response.json();
+    },
+
+    async getHistory(): Promise<HistoryItem[]> {
+        if (USE_DEMO_MODE) {
+            await mockDelay(500);
+            return [
+                {
+                    file_id: "demo-history-1",
+                    filename: "march_claims_audit.csv",
+                    upload_date: new Date(Date.now() - 3600000 * 2).toISOString(),
+                    summary: {
+                        total_leakage_amount: 14500000,
+                        flagged_count: 342,
+                        total_records: 15420,
+                        average_risk_score: 78.5,
+                        top_risk_state: "Uttar Pradesh"
+                    }
+                },
+                {
+                    file_id: "demo-history-2",
+                    filename: "feb_rural_subsidies.xlsx",
+                    upload_date: new Date(Date.now() - 86400000 * 5).toISOString(),
+                    summary: {
+                        total_leakage_amount: 8200000,
+                        flagged_count: 145,
+                        total_records: 8900,
+                        average_risk_score: 62.1,
+                        top_risk_state: "Bihar"
+                    }
+                }
+            ];
+        }
+
+        const response = await fetch(`${API_BASE_URL}/reports/history`);
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ detail: "Unknown fetch error" }));
+            throw new Error(errorData.detail || `Fetching history failed: ${response.statusText}`);
         }
 
         return response.json();

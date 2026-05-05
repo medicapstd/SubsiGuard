@@ -9,3 +9,4 @@ aiosqlite
 alembic
 greenlet
 asyncpg
+psycopg2-binary

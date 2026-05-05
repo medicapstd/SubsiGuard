@@ -15,15 +15,21 @@ if not DATABASE_URL:
 elif DATABASE_URL.startswith("postgres://"):
     # Fix for SQLAlchemy/asyncpg which requires postgresql://
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+elif DATABASE_URL.startswith("postgresql://") and not DATABASE_URL.startswith("postgresql+asyncpg://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
 # If it's already a correct sqlite+aiosqlite or postgresql+asyncpg URL, it will be used as is
 
 # Create Async Engine
-# check_same_thread=False is needed for SQLite
+# check_same_thread=False is needed ONLY for SQLite
+connect_args = {}
+if DATABASE_URL.startswith("sqlite"):
+    connect_args["check_same_thread"] = False
+
 engine = create_async_engine(
     DATABASE_URL, 
     echo=True, 
     future=True,
-    connect_args={"check_same_thread": False}
+    connect_args=connect_args
 )
 
 # Create Async Session

@@ -44,6 +44,11 @@ async def get_reports_summary(session: AsyncSession = Depends(get_db)):
         "resolved_cases": resolved_cases,
         "total_leakage": total_leakage
     }
+
+@router.get("/reports/history")
+async def get_reports_history(session: AsyncSession = Depends(get_db)):
+    history = await data_storage.get_history(session)
+    return history
     
 from fastapi.responses import StreamingResponse
 import pandas as pd

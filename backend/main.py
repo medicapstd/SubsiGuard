@@ -1,3 +1,9 @@
+import os
+import sys
+
+# Add the 'backend' directory to the Python path to allow running from the root directory (required for Vercel)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api import upload, analyze, results, synthetic, auth

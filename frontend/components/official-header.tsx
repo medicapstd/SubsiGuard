@@ -200,9 +200,6 @@ export function OfficialHeader() {
                         <Link href="/upload" className="hover:text-gov-navy border-b pb-2" onClick={() => setIsMobileMenuOpen(false)}>
                             {t('nav.audit')}
                         </Link>
-                        <Link href="/reports" className="hover:text-gov-navy border-b pb-2" onClick={() => setIsMobileMenuOpen(false)}>
-                            Audit Center
-                        </Link>
 
                         {user ? (
                             <div className="flex flex-col gap-4 mt-4">

@@ -36,7 +36,8 @@ import {
     ShieldCheck,
     FileText,
     TrendingUp,
-    Activity
+    Activity,
+    History
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -85,6 +86,22 @@ export default function DashboardPage() {
 function DashboardContent({ activeTab, setActiveTab, t, router }: any) {
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const { loading, result, processFile, reset } = useAnalyze();
+
+    const [historyData, setHistoryData] = React.useState<any[]>([]);
+    const [loadingHistory, setLoadingHistory] = React.useState(false);
+
+    React.useEffect(() => {
+        if (activeTab === "History" && historyData.length === 0) {
+            setLoadingHistory(true);
+            api.getHistory()
+                .then(setHistoryData)
+                .catch(err => {
+                    console.error("Failed to load history:", err);
+                    toast.error("Failed to load history");
+                })
+                .finally(() => setLoadingHistory(false));
+        }
+    }, [activeTab]);
 
     const handleUploadClick = () => {
         fileInputRef.current?.click();
@@ -166,6 +183,7 @@ function DashboardContent({ activeTab, setActiveTab, t, router }: any) {
                         { icon: LayoutDashboard, label: t('dash.overview'), key: "Overview" },
                         { icon: Search, label: "Investigations", key: "Investigations" },
                         { icon: Bell, label: "Alerts", key: "Alerts" },
+                        { icon: History, label: "History", key: "History" },
                         { icon: User, label: "Profile", key: "Profile" },
                     ].map((item, i) => (
                         <button
@@ -208,7 +226,7 @@ function DashboardContent({ activeTab, setActiveTab, t, router }: any) {
                 <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 py-5 flex justify-between items-center">
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{activeTab}</h1>
-                        <p className="text-sm text-slate-500">Welcome back, Auditor. Here is today&apos;s subsidy leakage report.</p>
+                        <p className="text-sm text-slate-500 hidden sm:block">Welcome back, Auditor. Here is today&apos;s subsidy leakage report.</p>
                     </div>
                     <div className="flex items-center gap-4">
                         <button
@@ -224,6 +242,29 @@ function DashboardContent({ activeTab, setActiveTab, t, router }: any) {
                         </button>
                     </div>
                 </header>
+
+                {/* Mobile Tab Navigation (Visible only on small screens) */}
+                <div className="md:hidden sticky top-[80px] z-10 bg-white/95 backdrop-blur-md border-b border-slate-100 px-4 py-3 flex gap-2 overflow-x-auto snap-x scrollbar-hide shadow-sm">
+                    {[
+                        { label: t('dash.overview'), key: "Overview" },
+                        { label: "Investigations", key: "Investigations" },
+                        { label: "Alerts", key: "Alerts" },
+                        { label: "History", key: "History" },
+                        { label: "Profile", key: "Profile" },
+                    ].map((item, i) => (
+                        <button
+                            key={i}
+                            onClick={() => setActiveTab(item.key)}
+                            className={`whitespace-nowrap snap-center px-4 py-2 rounded-full text-sm font-semibold transition-all shadow-sm ${
+                                activeTab === item.key 
+                                    ? "bg-blue-600 text-white shadow-blue-600/20" 
+                                    : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+                            }`}
+                        >
+                            {item.label}
+                        </button>
+                    ))}
+                </div>
 
                 <div className="p-8 max-w-[1600px] mx-auto space-y-8 relative pb-20">
                     {activeTab === "Overview" && (
@@ -339,7 +380,7 @@ function DashboardContent({ activeTab, setActiveTab, t, router }: any) {
                                     </span>
                                 </div>
 
-                                <BentoGrid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-4 md:auto-rows-[13rem]">
+                                <BentoGrid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-4 md:auto-rows-[16rem]">
                                     <BentoGridItem
                                         title="PDS"
                                         description="Public Distribution System (Food Security)"
@@ -651,8 +692,8 @@ function DashboardContent({ activeTab, setActiveTab, t, router }: any) {
                                     <p className="text-sm text-slate-500">Manage and track high-priority fraud cases.</p>
                                 </div>
                                 <div className="flex gap-3">
-                                    <button className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">Filter</button>
-                                    <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">Assign New Case</button>
+                                    <button onClick={() => toast.info("Opening filter panel...", { description: "Advanced filtering coming soon." })} className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">Filter</button>
+                                    <button onClick={() => toast.success("New Case Modal", { description: "Opening case assignment module..." })} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">Assign New Case</button>
                                 </div>
                             </div>
 
@@ -696,7 +737,7 @@ function DashboardContent({ activeTab, setActiveTab, t, router }: any) {
                                                 </TableCell>
                                                 <TableCell>{inv.deadline}</TableCell>
                                                 <TableCell className="text-right">
-                                                    <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">View Details</button>
+                                                    <button onClick={() => toast.info(`Loading Case ${inv.id}`, { description: "Fetching full investigation history..." })} className="text-blue-600 hover:text-blue-800 text-sm font-medium">View Details</button>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -713,7 +754,7 @@ function DashboardContent({ activeTab, setActiveTab, t, router }: any) {
                                     <h2 className="text-xl font-bold text-slate-900">System Alerts</h2>
                                     <p className="text-sm text-slate-500">Real-time notifications and system warnings.</p>
                                 </div>
-                                <button className="text-sm text-blue-600 hover:underline">Mark all as read</button>
+                                <button onClick={() => toast.success("Marked Read", { description: "All system alerts have been dismissed." })} className="text-sm text-blue-600 hover:underline">Mark all as read</button>
                             </div>
 
                             <div className="space-y-4">
@@ -743,6 +784,83 @@ function DashboardContent({ activeTab, setActiveTab, t, router }: any) {
                         </div>
                     )}
 
+                    {activeTab === "History" && (
+                        <div className="space-y-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h2 className="text-xl font-bold text-slate-900">Analysis History</h2>
+                                    <p className="text-sm text-slate-500">View and export past audit reports.</p>
+                                </div>
+                            </div>
+
+                            <GlassCard className="overflow-hidden p-0 border-slate-200">
+                                {loadingHistory ? (
+                                    <div className="p-8 flex justify-center">
+                                        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+                                    </div>
+                                ) : (
+                                    <Table>
+                                        <TableHeader className="bg-slate-50">
+                                            <TableRow>
+                                                <TableHead>Date</TableHead>
+                                                <TableHead>Filename</TableHead>
+                                                <TableHead>Records</TableHead>
+                                                <TableHead>Flagged Anomalies</TableHead>
+                                                <TableHead>Leakage Value</TableHead>
+                                                <TableHead className="text-right">Action</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {historyData.map((item, idx) => (
+                                                <TableRow key={item.file_id || idx}>
+                                                    <TableCell className="text-slate-500 text-sm break-keep whitespace-nowrap">
+                                                        {new Date(item.upload_date).toLocaleDateString()}
+                                                    </TableCell>
+                                                    <TableCell className="font-medium text-slate-900">
+                                                        {item.filename}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {item.summary?.total_records?.toLocaleString() || 0}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <span className={item.summary?.flagged_count > 0 ? "text-red-600 font-medium" : "text-emerald-600 font-medium"}>
+                                                            {item.summary?.flagged_count?.toLocaleString() || 0}
+                                                        </span>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        ₹{((item.summary?.total_leakage_amount || 0) / 100000).toFixed(2)} L
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        <button 
+                                                            onClick={async () => {
+                                                                try {
+                                                                    toast.success("Preparing download...");
+                                                                    await api.downloadReport(item.file_id);
+                                                                } catch (err) {
+                                                                    toast.error("Export failed.");
+                                                                }
+                                                            }}
+                                                            className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center justify-end gap-1 w-full"
+                                                        >
+                                                            <Download className="w-4 h-4" /> Export
+                                                        </button>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                            {historyData.length === 0 && !loadingHistory && (
+                                                <TableRow>
+                                                    <TableCell colSpan={6} className="text-center py-8 text-slate-500">
+                                                        No analysis history found. Upload a file to get started.
+                                                    </TableCell>
+                                                </TableRow>
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                )}
+                            </GlassCard>
+                        </div>
+                    )}
+
                     {activeTab === "Profile" && (
                         <div className="max-w-2xl mx-auto space-y-8">
                             <div className="text-center">
@@ -752,10 +870,13 @@ function DashboardContent({ activeTab, setActiveTab, t, router }: any) {
                             </div>
 
                             <GlassCard className="p-6">
-                                <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                    <User className="w-5 h-5 text-blue-600" />
-                                    Account Details
-                                </h3>
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                        <User className="w-5 h-5 text-blue-600" />
+                                        Account Details
+                                    </h3>
+                                    <button onClick={() => toast.info("Edit Profile", { description: "Profile editing module opening..." })} className="text-sm text-blue-600 hover:underline font-medium">Edit Profile</button>
+                                </div>
                                 <div className="space-y-4">
                                     <div className="grid grid-cols-2 py-3 border-b border-slate-50">
                                         <span className="text-slate-500 text-sm">Full Name</span>
@@ -791,14 +912,14 @@ function DashboardContent({ activeTab, setActiveTab, t, router }: any) {
                                             <div className="text-slate-900 font-medium text-sm">Two-Factor Authentication</div>
                                             <div className="text-slate-500 text-xs">Enabled via SMS</div>
                                         </div>
-                                        <button className="text-blue-600 text-sm font-medium hover:underline">Manage</button>
+                                        <button onClick={() => toast.info("Security Settings", { description: "Redirecting to 2FA provider..." })} className="text-blue-600 text-sm font-medium hover:underline">Manage</button>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <div>
                                             <div className="text-slate-900 font-medium text-sm">Change Password</div>
                                             <div className="text-slate-500 text-xs">Last changed 30 days ago</div>
                                         </div>
-                                        <button className="text-blue-600 text-sm font-medium hover:underline">Update</button>
+                                        <button onClick={() => toast.info("Verification Required", { description: "Sending password reset link to your email." })} className="text-blue-600 text-sm font-medium hover:underline">Update</button>
                                     </div>
                                 </div>
                             </GlassCard>
