@@ -28,3 +28,7 @@ dist/
 *.pem
 *.key
 .vercel
+
+chroma_db/
+.tmp_venv/
+.venv/
